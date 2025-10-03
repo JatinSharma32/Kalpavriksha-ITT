@@ -1,145 +1,146 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 // Operator Priority
-int priority(char operator)
+int priority(char operatorChar)
 {
-    if (operator == '+' || operator == '-')
+    if (operatorChar == '+' || operatorChar == '-')
         return 1;
-    else if (operator == '/' || operator == '*')
+    else if (operatorChar == '/' || operatorChar == '*')
         return 2;
     printf("\nERROR : Invalid Operator.");
     exit(1);
 }
 
 // Operand Stack
-int topVal = -1;
-int value[100];
-void pushVal(int n)
+int valueStackTop = -1;
+int valueStack[100];
+void pushValue(int value)
 {
-    if (topVal >= 99)
+    if (valueStackTop >= 99)
     {
         printf("Stack Overflow");
         exit(1);
     }
-    value[++topVal] = n;
+    valueStack[++valueStackTop] = value;
     return;
 }
-int popVal()
+int popValue()
 {
-    if (topVal <= -1)
+    if (valueStackTop <= -1)
     {
         printf("\nERROR : Invalid Expression, Value Stack Empty");
         exit(1);
     }
-    int n = value[topVal];
-    topVal--;
-    return n;
+    int value = valueStack[valueStackTop];
+    valueStackTop--;
+    return value;
 }
-int peekVal()
+int peekValue()
 {
-    if (topVal <= -1)
+    if (valueStackTop <= -1)
     {
         printf("\nERROR : Invalid Expression, Value Stack Empty");
         exit(1);
     }
-    return value[topVal];
+    return valueStack[valueStackTop];
 }
 
 // Operator Stack
-int topOpr = -1;
-char opr[100];
-void pushOpr(char ch)
+int operatorStackTop = -1;
+char operatorStack[100];
+void pushOperator(char character)
 {
-    if (topOpr >= 99)
+    if (operatorStackTop >= 99)
     {
         printf("Stack Overflow");
         exit(1);
     }
-    opr[++topOpr] = ch;
+    operatorStack[++operatorStackTop] = character;
     return;
 }
-char popOpr()
+char popOperator()
 {
-    if (topOpr <= -1)
+    if (operatorStackTop <= -1)
     {
         printf("\nERROR : Invalid Expression, Operator Stack Empty");
         exit(1);
     }
-    char ch = opr[topOpr];
-    topOpr--;
-    return ch;
+    char character = operatorStack[operatorStackTop];
+    operatorStackTop--;
+    return character;
 }
-char peekOpr()
+char peekOperator()
 {
-    if (topOpr <= -1)
+    if (operatorStackTop <= -1)
     {
         printf("\nERROR : Invalid Expression, Operator Stack Empty");
         exit(1);
     }
-    return opr[topOpr];
+    return operatorStack[operatorStackTop];
 }
 
 // Extraction function
-int extract(char *exp, int *i)
+int extractNumber(char *expression, int *indexPtr)
 {
-    int val = 0;
-    while (exp[*i] >= '0' && exp[*i] <= '9')
+    int number = 0;
+    while (expression[*indexPtr] >= '0' && expression[*indexPtr] <= '9')
     {
-        val = (val * 10) + (exp[*i] - '0');
-        (*i)++;
+        number = (number * 10) + (expression[*indexPtr] - '0');
+        (*indexPtr)++;
     }
-    (*i)--;
-    return val;
+    (*indexPtr)--;
+    return number;
 }
 
 // Airthmatic Operations logic
-void operations()
+void performOperation()
 {
-    char operator = popOpr();
-    int a = popVal();
-    int b = popVal();
-    if (operator == '+')
+    char operatorChar = popOperator();
+    int firstOperand = popValue();
+    int secondOperand = popValue();
+    if (operatorChar == '+')
     {
-        pushVal(a + b);
+        pushValue(firstOperand + secondOperand);
     }
-    else if (operator == '-')
+    else if (operatorChar == '-')
     {
-        pushVal(b - a);
+        pushValue(secondOperand - firstOperand);
     }
-    else if (operator == '*')
+    else if (operatorChar == '*')
     {
-        pushVal(a * b);
+        pushValue(firstOperand * secondOperand);
     }
-    else if (operator == '/')
+    else if (operatorChar == '/')
     {
-        if (a == 0)
+        if (firstOperand == 0)
         {
             printf("\n ERROR : Division by Zero.\n");
             exit(1);
         }
-        pushVal(b / a);
+        pushValue(secondOperand / firstOperand);
     }
 }
 
 // Main logic
-int solve(char *exp)
+int evaluateExpression(char *expression)
 {
-    for (int i = 0; exp[i] != 0; i++)
+    for (int index = 0; expression[index] != 0; index++)
     {
-        if (exp[i] >= '0' && exp[i] <= '9')
+        if (expression[index] >= '0' && expression[index] <= '9')
         {
-            pushVal(extract(exp, &i));
+            pushValue(extractNumber(expression, &index));
         }
-        else if (exp[i] == '+' || exp[i] == '*' || exp[i] == '-' || exp[i] == '/')
+        else if (expression[index] == '+' || expression[index] == '*' || expression[index] == '-' || expression[index] == '/')
         {
-            while (topOpr != -1 && priority(exp[i]) <= priority(peekOpr()))
+            while (operatorStackTop != -1 && priority(expression[index]) <= priority(peekOperator()))
             {
-                operations();
+                performOperation();
             }
-            pushOpr(exp[i]);
+            pushOperator(expression[index]);
         }
-        else if (exp[i] == ' ' || exp[i] == '\n')
+        else if (expression[index] == ' ' || expression[index] == '\n')
         {
             continue;
         }
@@ -149,18 +150,32 @@ int solve(char *exp)
             exit(1);
         }
     }
-    while (topOpr != -1)
+    while (operatorStackTop != -1)
     {
-        operations();
+        performOperation();
     }
-    return popVal();
+    return popValue();
 }
 
 int main(int argc, char **argv)
 {
     printf("Enter a valid expression: ");
-    char exp[100];
-    fgets(exp, sizeof(exp), stdin);
-    printf("\nANS: %d\n", solve(exp));
+    char expression[100];
+    fgets(expression, sizeof(expression), stdin);
+    bool hasContent = false;
+    for (int i = 0; expression[i] != '\0'; i++)
+    {
+        if (expression[i] != ' ' && expression[i] != '\n' && expression[i] != '\t')
+        {
+            hasContent = true;
+            break;
+        }
+    }
+    if (!hasContent)
+    {
+        printf("\nERROR : Invalid Expression");
+        exit(1);
+    }
+    printf("\nANS: %d\n", evaluateExpression(expression));
     return 0;
 }
