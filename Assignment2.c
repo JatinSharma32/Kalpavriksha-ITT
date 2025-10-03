@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 struct StudentData
 {
@@ -12,6 +13,11 @@ struct StudentData
 bool alreadyExist(int id)
 {
     FILE *fp = fopen("user.txt", "r");
+    if (fp == NULL)
+    {
+        printf("File Creation Error\n");
+        return true;
+    }
     struct StudentData student;
     while (fscanf(fp, "%d, %[^,], %d\n", &student.ID, &student.Name, &student.Age) >= 1)
     {
@@ -35,11 +41,26 @@ void createRecord()
     }
     struct StudentData student;
     printf("Enter the ID:");
-    scanf("%d", &student.ID);
+    while (scanf("%d", &student.ID) != 1 || student.ID <= 0)
+    {
+        printf("Invalid input. Please enter a positive integer ID: ");
+        while (getchar() != '\n')
+            ;
+    }
     printf("Enter the Name:");
     scanf(" %[^\n]", student.Name);
+    while (strlen(student.Name) == 0)
+    {
+        printf("Name cannot be empty. Please enter a valid name: ");
+        scanf(" %[^\n]", student.Name);
+    }
     printf("Enter the Age:");
-    scanf("%d", &student.Age);
+    while (scanf("%d", &student.Age) != 1 || student.Age <= 0 || student.Age > 150)
+    {
+        printf("Invalid input. Please enter a valid age (1-150): ");
+        while (getchar() != '\n')
+            ;
+    }
     if (alreadyExist(student.ID))
     {
         printf("User ID already exist.\n");
@@ -84,12 +105,27 @@ void updateRecord()
     struct StudentData updatedInfo;
     struct StudentData student;
     printf("Enter the Student ID to be updated:");
-    scanf("%d", &updatedInfo.ID);
+    while (scanf("%d", &updatedInfo.ID) != 1 || updatedInfo.ID <= 0)
+    {
+        printf("Invalid input. Please enter a positive integer ID: ");
+        while (getchar() != '\n')
+            ;
+    }
 
     printf("Enter the Name:");
     scanf(" %[^\n]", &updatedInfo.Name);
+    while (strlen(updatedInfo.Name) == 0)
+    {
+        printf("Name cannot be empty. Please enter a valid name: ");
+        scanf(" %[^\n]", updatedInfo.Name);
+    }
     printf("Enter the new Age:");
-    scanf("%d", &updatedInfo.Age);
+    while (scanf("%d", &updatedInfo.Age) != 1 || updatedInfo.Age <= 0 || updatedInfo.Age > 150)
+    {
+        printf("Invalid input. Please enter a valid age (1-150): ");
+        while (getchar() != '\n')
+            ;
+    }
 
     bool found = false;
     while (fscanf(fp, "%d, %[^,], %d\n", &student.ID, &student.Name, &student.Age) >= 1)
@@ -109,7 +145,7 @@ void updateRecord()
     {
         if (remove("user.txt") != 0)
         {
-            printf("Removing user file failed");
+            printf("Removing user file failed.");
             return;
         }
         if (rename("temp.txt", "user.txt") != 0)
@@ -141,7 +177,12 @@ void deleteRecord()
     int id;
     struct StudentData student;
     printf("Enter the Student ID to be deleted:");
-    scanf("%d", &id);
+    while (scanf("%d", &id) != 1 || id <= 0)
+    {
+        printf("Invalid input. Please enter a positive integer ID: ");
+        while (getchar() != '\n')
+            ;
+    }
 
     bool found = false;
     while (fscanf(fp, "%d, %[^,], %d\n", &student.ID, &student.Name, &student.Age) >= 1)
@@ -159,7 +200,7 @@ void deleteRecord()
     {
         if (remove("user.txt") != 0)
         {
-            printf("Removing user file failed");
+            printf("Removing user file failed.");
             return;
         }
         if (rename("temp.txt", "user.txt") != 0)
@@ -179,8 +220,13 @@ int main(int argc, char **argv)
     int option = 0;
     do
     {
-        printf("Create -> 1\nRead -> 2\nUpdate -> 3\nDelete -> 4\nExit -> 5\nEnter your choise: ");
-        scanf("%d", &option);
+        printf("Create -> 1\nRead -> 2\nUpdate -> 3\nDelete -> 4\nExit -> 5\nEnter your Choice: ");
+        while (scanf("%d", &option) != 1 || option < 1 || option > 5)
+        {
+            printf("Invalid choice. Please enter a number between 1-5: ");
+            while (getchar() != '\n')
+                ;
+        }
         if (option == 1)
             createRecord();
         else if (option == 2)
