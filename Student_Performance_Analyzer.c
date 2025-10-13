@@ -58,12 +58,12 @@ void printingOutput(struct Student_Data studentDetails)
     printf("\n");
 }
 
-void printingRollNumbers(int rollNo)
+void printingRollNumbers(struct Student_Data studentDataArray[], int rollNo)
 {
     if (rollNo == 0)
         return;
-    printingRollNumbers(rollNo - 1);
-    printf("%d ", rollNo);
+    printingRollNumbers(studentDataArray, rollNo - 1);
+    printf("%d ", studentDataArray[rollNo - 1].RollNo);
 }
 
 int main(int argc, char *argv[])
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
     // Printing the Roll Numbers using Recursion.
     printf("\nList of Roll Numbers (via recursion): ");
-    printingRollNumbers(noOfStudents);
+    printingRollNumbers(studentDataArray, noOfStudents);
     printf("\n");
     return 0;
 }
