@@ -53,22 +53,19 @@ FileNodeStruct *findChildren(char *fileName)
     FileNodeStruct *targetFile = fileSystemList->pwd->child;
     if (targetFile == NULL)
         return NULL;
-    printf("[findChildren] DEBUG 1\n");
     FileNodeStruct *start = targetFile;
     do
     {
-        printf("[findChildren] DEBUG 2\n", fileName);
         if (strcmp(targetFile->name, fileName) == 0)
         {
-            printf("[findChildren] DEBUG break\n", fileName);
             return targetFile;
         }
-        printf("[findChildren] DEBUG 3\n");
         targetFile = targetFile->next;
     } while (targetFile != start);
     return NULL;
 }
 
+// This function can be used to see the free list, to see list fragmentation
 void printFreeList()
 {
     printf("Printing List: ");
@@ -142,8 +139,6 @@ void makeFileAndDirectory(char *fileName, bool isFile)
 void blockDeallocation(FileNodeStruct *targetFile, int iterator)
 {
     FreeBlockNodeStruct *freeBlockNode = freeBlockNodeList->tail;
-    // printf("[blockDeallocation] DEBUG last node in freelist %d\n", freeBlockNode->index);
-    // printf("[blockDeallocation] DEBUG Number of free block left %d\n", freeBlockNodeList->numberOfFreeBlocks);
     // Roll back the free nodes 1 by one till we assigned.
     for (int block = 0; block < iterator; block++)
     {
@@ -156,10 +151,8 @@ void blockDeallocation(FileNodeStruct *targetFile, int iterator)
         }
         // putting data in it
         newFreeBlockNode->index = *(targetFile->blockPointers + block);
-        printf("[blockDeallocation] DEBUG putting back in list %d\n", newFreeBlockNode->index);
         if (freeBlockNode == NULL)
         {
-            printf("[blockDeallocation] DEBUG List was Empty\n");
             // If list empty then make new node head and tail.
             freeBlockNodeList->tail = newFreeBlockNode;
             freeBlockNodeList->head = newFreeBlockNode;
@@ -168,7 +161,6 @@ void blockDeallocation(FileNodeStruct *targetFile, int iterator)
         }
         else
         {
-            printf("[blockDeallocation] DEBUG List was Not empty\n");
             // else just add this new node at tail
             freeBlockNodeList->tail->next = newFreeBlockNode;
             newFreeBlockNode->prev = freeBlockNodeList->tail;
@@ -177,7 +169,6 @@ void blockDeallocation(FileNodeStruct *targetFile, int iterator)
             freeBlockNodeList->tail = newFreeBlockNode;
         }
         freeBlockNodeList->numberOfFreeBlocks += 1;
-        printFreeList();
     }
     // Deallocate the blockPointers list
     free(targetFile->blockPointers);
@@ -198,13 +189,11 @@ bool blockAllocation(FileNodeStruct *targetFile, int numberOfBlocksRequired)
     int temp = numberOfBlocksRequired;
     FreeBlockNodeStruct *freeBlockNode = freeBlockNodeList->head;
     int iterator = 0;
-    printf("[blockAllocation] DEBUG: ");
     while (numberOfBlocksRequired > iterator && freeBlockNode != NULL)
     {
         // Putting the free node in to the blockPointers
         FreeBlockNodeStruct *tempFreeNode = freeBlockNode;
         *(targetFile->blockPointers + iterator) = tempFreeNode->index;
-        printf("%d, ", *(targetFile->blockPointers + iterator));
         // delete this node from list
 
         // FREE LIST's HEAD is cruppted.
@@ -228,9 +217,7 @@ bool blockAllocation(FileNodeStruct *targetFile, int numberOfBlocksRequired)
         iterator++;
         // Reduce the free blocks
         freeBlockNodeList->numberOfFreeBlocks -= 1;
-        printFreeList();
     }
-    printf("\n[blockAllocation] DEBUG %d, %d\n", numberOfBlocksRequired, iterator);
     // check if Rollback is needed
     if (numberOfBlocksRequired == iterator)
     {
@@ -244,7 +231,6 @@ bool blockAllocation(FileNodeStruct *targetFile, int numberOfBlocksRequired)
 void writeFile(char *fileName, char *fileData)
 {
     // Find the file in the children list
-    // printf("[writeFile] DEBUG '%s', \"%s\"\n", fileName, fileData);
     FileNodeStruct *targetFile = findChildren(fileName);
     if (targetFile == NULL)
     {
@@ -254,7 +240,6 @@ void writeFile(char *fileName, char *fileData)
     // Clears the past content of file.
     if (targetFile->numberOfBlocks != 0)
     {
-        printf("DEALLOCATION of %d blocks in file %s.\n", targetFile->numberOfBlocks, targetFile->name);
         blockDeallocation(targetFile, targetFile->numberOfBlocks);
         targetFile->numberOfBlocks = 0;
     }
@@ -263,7 +248,6 @@ void writeFile(char *fileName, char *fileData)
     int fileDataLength = strlen(fileData) + 2; // adding 2 extra for \0 and then \n
     int numberOfBlocksRequired = fileDataLength / BLOCK_SIZE + (fileDataLength % BLOCK_SIZE != 0);
     targetFile->numberOfBlocks = numberOfBlocksRequired;
-    printf("[writeFile] DEBUG %d\n", numberOfBlocksRequired);
     // Do the block allocation
     if (!blockAllocation(targetFile, numberOfBlocksRequired))
     {
@@ -272,7 +256,6 @@ void writeFile(char *fileName, char *fileData)
         printf("Disk Full, not enough memory.\n");
         return;
     }
-    printf("[writeFile] DEBUG: ");
     // Populate data in it.
     int fileDataIterator = 0;
     for (int block = 0; block < numberOfBlocksRequired; block++)
@@ -280,7 +263,6 @@ void writeFile(char *fileName, char *fileData)
         bool fileEnd = false;
         // Here basically we are using the blockPointers values to find the free blocks
         char *blockRow = *(virtualMemory + *(targetFile->blockPointers + block));
-        printf("'%d', ", *(targetFile->blockPointers + block));
         // This blockRow is 16 sized character array.
         for (int cell = 0; cell < BLOCK_SIZE; cell++)
         {
@@ -298,7 +280,6 @@ void writeFile(char *fileName, char *fileData)
         if (fileEnd)
             break;
     }
-    printf("\n");
     printf("Data written successfully (size=%d bytes).\n", fileDataLength);
 }
 
@@ -453,7 +434,6 @@ void listDirectoryContent()
 
 void changeDirectory(char *newPath)
 {
-    printf("[changeDirectory] DEBUG '%s', %d\n", newPath, strcmp(newPath, ".."));
     if (strcmp(newPath, "..") == 0)
     {
         if (fileSystemList->pwd == fileSystemList->root)
@@ -553,15 +533,11 @@ void exitVFS()
     {
         free(*(virtualMemory + blocks));
     }
-    printf("Clearing the File system...\n");
     clearFileStructure(fileSystemList->root);
     free(fileSystemList->root);
-    printf("Clearing the free nodes...\n");
     clearFreeNodeList();
-    printf("Freeing the pointers...\n");
     free(fileSystemList);
     free(freeBlockNodeList);
-    printf("Freeing the Virtual memory...\n");
     free(virtualMemory);
     printf("Memory released. Exiting program...\n");
     return;
@@ -571,11 +547,6 @@ void enterVFS()
 {
     // Allocating the virtual memory
     virtualMemory = (char **)malloc(NUMBER_OF_BLOCKS * sizeof(char *));
-    if (virtualMemory == NULL)
-    {
-        printf("Memory allocation failed\n");
-        exit(1);
-    }
     if (virtualMemory == NULL)
     {
         printf("Memory allocation failed\n");
@@ -758,7 +729,6 @@ int main(int arg, char **argv)
     // User Command handling
     userCommandProcessing();
 
-    printf("Exiting VFS system\n");
     // Free all the pointers
     exitVFS();
     return 0;
