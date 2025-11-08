@@ -6,7 +6,7 @@
 #include <string.h>
 
 // Defination Part
-#define NUMBER_OF_BLOCKS 10 // Change it to 5000
+#define NUMBER_OF_BLOCKS 5000
 #define BLOCK_SIZE 16
 char **virtualMemory; // Declearing it globally so that its accessible from everywhere
 
@@ -424,6 +424,7 @@ void listDirectoryContent()
         printf("(empty)\n");
         return;
     }
+    // Visit the circular list and print the names one by one
     do
     {
         printf((childNode->file ? "%s " : "%s/ "), childNode->name);
@@ -434,6 +435,7 @@ void listDirectoryContent()
 
 void changeDirectory(char *newPath)
 {
+    // Need to move back
     if (strcmp(newPath, "..") == 0)
     {
         if (fileSystemList->pwd == fileSystemList->root)
@@ -446,6 +448,7 @@ void changeDirectory(char *newPath)
         return;
     }
 
+    // Find the directory in the children list and visit it
     FileNodeStruct *targetNode = findChildren(newPath);
     if (targetNode == NULL)
     {
@@ -464,12 +467,14 @@ void changeDirectory(char *newPath)
 
 void presentWorkingDirectory(FileNodeStruct *directory)
 {
+    // Print the path from root to current directory
     if (directory == fileSystemList->root)
     {
-
+        // Stop at root directory
         printf("/", directory->name);
         return;
     }
+    // Visit the parent directory
     presentWorkingDirectory(directory->parent);
     printf("%s/", directory->name);
 }
@@ -481,12 +486,14 @@ void diskStorageInfo()
 
 void clearFileStructure(FileNodeStruct *fileNode)
 {
+    // If reaching null just return.
     if (fileNode == NULL)
         return;
     FileNodeStruct *tempFileNode = fileNode;
+    // Get the level of children cleared one by 1
     do
     {
-        printf("Deleting %s...\n", tempFileNode->name);
+        // If file then remove allocated blocks, else recursivly check if its a directory
         if (tempFileNode->file)
             blockDeallocation(tempFileNode, tempFileNode->numberOfBlocks);
         else
@@ -497,6 +504,8 @@ void clearFileStructure(FileNodeStruct *fileNode)
         free(freeThisNode);
     } while (tempFileNode != fileNode);
 
+    // End the chain by making parent's child pointer null as we cleared this
+    // and below levels
     fileNode->child = NULL;
 }
 
@@ -558,7 +567,6 @@ void enterVFS()
         printf("Memory allocation failed\n");
         exit(1);
     }
-    // Add error handling for malloc fail at all of its used locations
 
     // Virtual Storage creation
     freeBlockNodeList = (FreeBlockNodeListStruct *)malloc(sizeof(FreeBlockNodeListStruct));
@@ -653,18 +661,38 @@ void userCommandProcessing()
 
         if (strcmp("mkdir", command) == 0)
         {
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             makeFileAndDirectory(fileName, false);
         }
         else if (strcmp("create", command) == 0)
         {
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             makeFileAndDirectory(fileName, true);
         }
         else if (strcmp("write", command) == 0)
         {
-
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             // All this processing to extract the string in the quotes
-            char *fileData = strtok(NULL, "");
-            while (*fileData != '\0' && *fileData != '\n')
+            char *fileData = strtok(NULL, "\n");
+            if (fileData == NULL)
+            {
+                printf("Invalid Data string.\n");
+                continue;
+            }
+
+            while (fileData != NULL && *fileData != '\0' && *fileData != '\n')
             {
                 // for finding 1st quote
                 if (*fileData == '"')
@@ -676,19 +704,38 @@ void userCommandProcessing()
             }
             // for updating 2nd quote to '\0'
             fileData[strcspn(fileData, "\"")] = 0;
-
+            if (fileData == NULL || strlen(fileData) == 0)
+            {
+                printf("Invalid Data string.\n");
+                continue;
+            }
             writeFile(fileName, fileData);
         }
         else if (strcmp("read", command) == 0)
         {
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             readFile(fileName);
         }
         else if (strcmp("delete", command) == 0)
         {
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             deleteFile(fileName);
         }
         else if (strcmp("rmdir", command) == 0)
         {
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             removeDirectory(fileName);
         }
         else if (strcmp("ls", command) == 0)
@@ -697,6 +744,11 @@ void userCommandProcessing()
         }
         else if (strcmp("cd", command) == 0)
         {
+            if (fileName == NULL || strlen(fileName) == 0)
+            {
+                printf("Invalid File name.\n");
+                continue;
+            }
             changeDirectory(fileName);
         }
         else if (strcmp("pwd", command) == 0)
@@ -729,7 +781,7 @@ int main(int arg, char **argv)
     // User Command handling
     userCommandProcessing();
 
-    // Free all the pointers
+    // Freeing all the pointers and allocated memory
     exitVFS();
     return 0;
 }
