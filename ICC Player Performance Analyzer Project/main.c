@@ -6,39 +6,9 @@
 #include "Players_data.h"
 #include "Definitions.h"
 
-int findTeamNo(const char *teamName)
-{
-    for (int teamNo = 0; teamNo < INITIAL_TEAM_COUNT; teamNo++)
-    {
-        if (strcmp(teamName, (mainTeams + teamNo)->Name) == 0)
-        {
-            return teamNo;
-        }
-    }
-    return -1;
-}
-
-void fixTeamOrder(int updatedIndex)
-{
-    // fixing the order by performing left or rigth swap like insertion sort
-    while (updatedIndex < INITIAL_TEAM_COUNT - 1 &&
-           mainTeams[updatedIndex].AverageBattingStrikerate < mainTeams[updatedIndex + 1].AverageBattingStrikerate)
-    {
-        MainTeam temp = mainTeams[updatedIndex];
-        mainTeams[updatedIndex] = mainTeams[updatedIndex + 1];
-        mainTeams[updatedIndex + 1] = temp;
-        updatedIndex++;
-    }
-
-    while (updatedIndex > 0 &&
-           mainTeams[updatedIndex].AverageBattingStrikerate > mainTeams[updatedIndex - 1].AverageBattingStrikerate)
-    {
-        MainTeam temp = mainTeams[updatedIndex];
-        mainTeams[updatedIndex] = mainTeams[updatedIndex - 1];
-        mainTeams[updatedIndex - 1] = temp;
-        updatedIndex--;
-    }
-}
+//          POINTERS DECLARATION
+MainPlayerList *mainPlayerList = NULL;
+MainTeam *mainTeams = NULL;
 
 void userMenuDisplay()
 {
@@ -106,4 +76,28 @@ void deallocation()
         free((mainTeams + i)->Name);
     }
     free(mainTeams);
+}
+
+int main(int argc, char **argv)
+{
+    mainTeams = (MainTeam *)malloc(INITIAL_TEAM_COUNT * sizeof(MainTeam));
+    if (mainTeams == NULL)
+    {
+        printf("Memory can't be allocated\n");
+        exit(0);
+    }
+    mainPlayerList = (MainPlayerList *)malloc(sizeof(MainPlayerList));
+    if (mainPlayerList == NULL)
+    {
+        printf("Memory can't be allocated\n");
+        exit(0);
+    }
+    mainPlayerList->head = NULL;
+    mainPlayerList->tail = NULL;
+    initilizeTeams();
+    initilizePlayers();
+
+    userMenuDisplay();
+
+    deallocation();
 }
