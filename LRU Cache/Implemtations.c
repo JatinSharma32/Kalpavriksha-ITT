@@ -17,3 +17,43 @@ int hashFunction(int key, int hashSize)
     }
     return index;
 }
+
+void userCommand()
+{
+    do
+    {
+        char *userInput = (char *)malloc(1001 * sizeof(char));
+        if (userInput == NULL)
+        {
+            printf("Memory allocation failed\n");
+            exit(1);
+        }
+
+        fgets(userInput, 1000, stdin);
+        userInput[strcspn(userInput, "\n")] = 0;
+
+        char *command = strtok(userInput, " ");
+
+        if (command == NULL)
+        {
+            free(userInput);
+            userInput = NULL;
+            continue;
+        }
+        else if (strcmp("createCache", command) == 0)
+            ;
+        else if (strcmp("put", command) == 0)
+            ;
+        else if (strcmp("get", command) == 0)
+            ;
+        else if (strcmp("exit", command) == 0)
+            ;
+        else
+        {
+            printf("INVALID COMMAND\n");
+        }
+        free(userInput);
+        userInput = NULL;
+
+    } while (true);
+}

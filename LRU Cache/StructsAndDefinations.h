@@ -36,4 +36,7 @@ extern HashTable *hashTable;
 
 int hashFunction(int key, int hashSize);
 
+void createHashTable(int capacity);
+void userCommand();
+
 #endif

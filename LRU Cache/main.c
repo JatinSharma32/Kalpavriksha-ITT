@@ -11,10 +11,13 @@ HashTable *hashTable = NULL;
 
 int main()
 {
+    userCommand();
     // use this frmat for input
 
     // createCache <size>
     // put<key><data>
     // get<key>
+
+    // ADD NULL CHecks to all the dynamic allocations
     return 0;
 }
