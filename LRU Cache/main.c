@@ -3,39 +3,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-
-typedef struct DLLQueNode
-{
-    int Key;
-    char *Value;
-    struct DLLQueNode *Prev;
-    struct DLLQueNode *Next;
-} DLLQueNode;
-
-typedef struct HashMapNode
-{
-    int Key;
-    DLLQueNode *QueueNode;
-    struct HashMapNode *Next;
-} HashMapNode;
-
-typedef struct HashTable
-{
-    HashMapNode **HashTable;
-    int HashSize;
-} HashTable;
-
-typedef struct Cache
-{
-    int Capacity;
-    int Size;
-    DLLQueNode *qHead;
-    DLLQueNode *qTail;
-
-} Cache;
+#include "StructsAndDefinations.h"
 
 int main()
 {
-    // Main code here
+    // use this frmat for input
+
+    // createCache <size>
+    // put<key><data>
+    // get<key>
     return 0;
 }
