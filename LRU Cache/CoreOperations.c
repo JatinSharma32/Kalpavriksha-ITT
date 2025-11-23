@@ -18,89 +18,6 @@ int hashFunction(int key, int hashSize)
     return index;
 }
 
-void userCommand()
-{
-    do
-    {
-        char *userInput = (char *)malloc(1001 * sizeof(char));
-        if (userInput == NULL)
-        {
-            printf("Memory allocation failed\n");
-            exit(1);
-        }
-
-        fgets(userInput, 1000, stdin);
-        userInput[strcspn(userInput, "\n")] = 0;
-
-        char *command = strtok(userInput, " ");
-
-        if (command == NULL)
-        {
-            free(userInput);
-            userInput = NULL;
-            continue;
-        }
-        else if (strcmp("createCache", command) == 0)
-        {
-            char *capacityStr = strtok(NULL, " \n");
-            if (capacityStr == NULL)
-            {
-                printf("Invalid Capacity, should be positive.\n");
-                free(userInput);
-                userInput = NULL;
-                continue;
-            }
-            int cap = atoi(capacityStr);
-            if (cap < 1)
-            {
-                printf("Capacity should be more then 0.\n");
-                continue;
-            }
-            createCache(cap);
-            createHashTable(cap);
-        }
-
-        else if (strcmp("put", command) == 0)
-        {
-            char *keyString = strtok(NULL, " ");
-            char *valueString = strtok(NULL, " \n");
-            if (keyString == NULL || valueString == NULL)
-                printf("Invalid key and value.\n");
-            else
-            {
-                int key = atoi(keyString);
-                put(key, valueString);
-            }
-        }
-        else if (strcmp("get", command) == 0)
-        {
-            char *keyStr = strtok(NULL, " ");
-            if (keyStr == NULL)
-            {
-                printf("Invalid key.\n");
-                free(userInput);
-                userInput = NULL;
-                continue;
-            }
-            int key = atoi(keyStr);
-            char *val = get(key);
-            printf("%s\n", val);
-        }
-        else if (strcmp("exit", command) == 0)
-        {
-            free(userInput);
-            userInput = NULL;
-            return;
-        }
-        else
-        {
-            printf("INVALID COMMAND\n");
-        }
-        free(userInput);
-        userInput = NULL;
-    } while (true);
-}
-
 // Putting new element in the LRU Cache
 void putCommand(int key, char *value)
 {
@@ -123,7 +40,7 @@ void putCommand(int key, char *value)
         DLLQueNode *newNode = createDLLNode(key, value);
 
         addToHead(newNode);
-        mapPut(key, newNode);
+        putInHashMap(key, newNode);
         // Increase the number of existing elements in cache
         cache->Size++;
 

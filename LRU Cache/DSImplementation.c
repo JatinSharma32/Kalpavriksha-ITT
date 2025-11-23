@@ -34,7 +34,7 @@ void createCache(int capacity)
     cache->qHead = NULL;
     cache->qTail = NULL;
     // also initilize the hash map
-    initHashTable(capacity);
+    createHashTable(capacity);
 }
 
 // Adding a new node to DLL's head in cache
@@ -95,6 +95,28 @@ DLLQueNode *removeTail()
     return deleteNode;
 }
 
+DLLQueNode *createDLLNode(int key, char *value)
+{
+    DLLQueNode *newNode = (DLLQueNode *)malloc(sizeof(DLLQueNode));
+    if (newNode == NULL)
+    {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    newNode->Key = key;
+    int valueLen = strlen(value);
+    newNode->Value = (char *)malloc((valueLen + 1) * sizeof(char));
+    if (newNode->Value == NULL)
+    {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    strcpy(newNode->Value, value);
+    newNode->Prev = NULL;
+    newNode->Next = NULL;
+    return newNode;
+}
+
 void putInHashMap(int key, DLLQueNode *node)
 {
     // find the index in hash table usign hash funcion
@@ -144,7 +166,7 @@ void mapRemove(int key)
 // find the node in hash map
 DLLQueNode *mapGet(int key)
 {
-    int index = getHashIndex(key, hashTable->HashSize);
+    int index = hashFunction(key, hashTable->HashSize);
     // Get the index in hash table by hashing the key.
     HashMapNode *temp = *(hashTable->HashTable + index);
 

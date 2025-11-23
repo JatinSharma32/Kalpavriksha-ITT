@@ -43,6 +43,7 @@ void addToHead(DLLQueNode *newNode);
 void removeNode(DLLQueNode *newNode);
 void moveToHead(DLLQueNode *newNode);
 DLLQueNode *removeTail();
+DLLQueNode *createDLLNode(int key, char *value);
 void putInHashMap(int key, DLLQueNode *node);
 void mapRemove(int key);
 void putCommand(int key, char *value);
