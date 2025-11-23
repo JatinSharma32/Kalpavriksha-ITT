@@ -45,19 +45,19 @@ void userCommand()
             char *capacityStr = strtok(NULL, " \n");
             if (capacityStr == NULL)
             {
-                printf("Invalid Capacity.\n");
+                printf("Invalid Capacity, should be positive.\n");
                 free(userInput);
                 userInput = NULL;
                 continue;
             }
             int cap = atoi(capacityStr);
             if (cap < 1)
-                printf("Capacity should be more then 0.\n");
-            else
             {
-                createCache(cap);
-                createHashTable(cap);
+                printf("Capacity should be more then 0.\n");
+                continue;
             }
+            createCache(cap);
+            createHashTable(cap);
         }
 
         else if (strcmp("put", command) == 0)
@@ -73,9 +73,25 @@ void userCommand()
             }
         }
         else if (strcmp("get", command) == 0)
-            ;
+        {
+            char *keyStr = strtok(NULL, " ");
+            if (keyStr == NULL)
+            {
+                printf("Invalid key.\n");
+                free(userInput);
+                userInput = NULL;
+                continue;
+            }
+            int key = atoi(keyStr);
+            char *val = get(key);
+            printf("%s\n", val);
+        }
         else if (strcmp("exit", command) == 0)
-            ;
+        {
+            free(userInput);
+            userInput = NULL;
+            return;
+        }
         else
         {
             printf("INVALID COMMAND\n");
