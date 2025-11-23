@@ -1,6 +1,5 @@
 {
-  "files.associations": {
-    "string.h": "c",
-    "structsanddefinations.h": "c"
-  }
+    "files.associations": {
+        "structsanddefinations.h": "c"
+    }
 }

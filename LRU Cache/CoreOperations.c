@@ -41,9 +41,31 @@ void userCommand()
             continue;
         }
         else if (strcmp("createCache", command) == 0)
-            ;
+        {
+            char *capacityStr = strtok(NULL, " ");
+            if (capacityStr == NULL)
+            {
+                printf("Invalid Capacity.\n");
+                free(userInput);
+                userInput = NULL;
+                continue;
+            }
+            int cap = atoi(capacityStr);
+            if (cap < 1)
+            {
+                printf("Capacity should be more then 0.\n");
+            }
+            else
+            {
+                createCache(cap);
+                createHashTable(cap);
+            }
+        }
+
         else if (strcmp("put", command) == 0)
-            ;
+        {
+            // If node already exist then make it MRU.
+        }
         else if (strcmp("get", command) == 0)
             ;
         else if (strcmp("exit", command) == 0)
@@ -54,6 +76,5 @@ void userCommand()
         }
         free(userInput);
         userInput = NULL;
-
     } while (true);
 }

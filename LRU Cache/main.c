@@ -12,6 +12,7 @@ HashTable *hashTable = NULL;
 int main()
 {
     userCommand();
+
     // use this frmat for input
 
     // createCache <size>
