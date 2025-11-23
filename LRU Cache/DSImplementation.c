@@ -83,3 +83,60 @@ void moveToHead(DLLQueNode *newNode)
     removeNode(newNode);
     addToHead(newNode);
 }
+
+// when the chache is full we need to remove the last node from DLL
+DLLQueNode *removeTail()
+{
+    DLLQueNode *deleteNode = cache->qTail;
+    if (deleteNode != NULL)
+    {
+        removeNode(deleteNode);
+    }
+    return deleteNode;
+}
+
+void putInHashMap(int key, DLLQueNode *node)
+{
+    // find the index in hash table usign hash funcion
+    int index = hashFunction(key, hashTable->HashSize);
+    HashMapNode *newNode = (HashMapNode *)malloc(sizeof(HashMapNode));
+    if (newNode == NULL)
+    {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    // put the new node in the hash table
+    newNode->Key = key;
+    newNode->QueueNode = node;
+    newNode->Next = *(hashTable->HashTable + index);
+    *(hashTable->HashTable + index) = newNode;
+}
+
+// Remove a node from the hash table
+void mapRemove(int key)
+{
+    int index = hashFunction(key, hashTable->HashSize);
+    // Getting the linked list head of the bucket
+    HashMapNode *temp = *(hashTable->HashTable + index);
+    HashMapNode *prev = NULL;
+
+    while (temp != NULL)
+    {
+        if (temp->Key == key)
+        {
+            // If key in the list then remove it
+            if (prev == NULL)
+            {
+                *(hashTable->HashTable + index) = temp->Next;
+            }
+            else
+            {
+                prev->Next = temp->Next;
+            }
+            free(temp);
+            return;
+        }
+        prev = temp;
+        temp = temp->Next;
+    }
+}

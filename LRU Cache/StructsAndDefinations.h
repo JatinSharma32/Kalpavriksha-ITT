@@ -39,5 +39,14 @@ int hashFunction(int key, int hashSize);
 void createHashTable(int capacity);
 void createCache(int capacity);
 void userCommand();
+void addToHead(DLLQueNode *newNode);
+void removeNode(DLLQueNode *newNode);
+void moveToHead(DLLQueNode *newNode);
+DLLQueNode *removeTail();
+void putInHashMap(int key, DLLQueNode *node);
+void mapRemove(int key);
+void putCommand(int key, char *value);
+// get the node from the hashtable
+DLLQueNode *mapGet(int key);
 
 #endif
