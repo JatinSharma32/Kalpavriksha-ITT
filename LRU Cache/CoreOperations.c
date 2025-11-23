@@ -42,7 +42,7 @@ void userCommand()
         }
         else if (strcmp("createCache", command) == 0)
         {
-            char *capacityStr = strtok(NULL, " ");
+            char *capacityStr = strtok(NULL, " \n");
             if (capacityStr == NULL)
             {
                 printf("Invalid Capacity.\n");
@@ -52,9 +52,7 @@ void userCommand()
             }
             int cap = atoi(capacityStr);
             if (cap < 1)
-            {
                 printf("Capacity should be more then 0.\n");
-            }
             else
             {
                 createCache(cap);
@@ -64,7 +62,15 @@ void userCommand()
 
         else if (strcmp("put", command) == 0)
         {
-            // If node already exist then make it MRU.
+            char *keyString = strtok(NULL, " ");
+            char *valueString = strtok(NULL, " \n");
+            if (keyString == NULL || valueString == NULL)
+                printf("Invalid key and value.\n");
+            else
+            {
+                int key = atoi(keyString);
+                put(key, valueString);
+            }
         }
         else if (strcmp("get", command) == 0)
             ;
@@ -116,4 +122,18 @@ void putCommand(int key, char *value)
             cache->Size--;
         }
     }
+}
+
+char *getCommand(int key)
+{
+    // find if this key already exist in LRU
+    DLLQueNode *node = mapGet(key);
+
+    // if doesn't exist then return nothing
+    if (node == NULL)
+        return NULL;
+
+    // Make this node MRU
+    moveToHead(node);
+    return node->Value;
 }

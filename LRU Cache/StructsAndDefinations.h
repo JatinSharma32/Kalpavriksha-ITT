@@ -48,5 +48,6 @@ void mapRemove(int key);
 void putCommand(int key, char *value);
 // get the node from the hashtable
 DLLQueNode *mapGet(int key);
+char *getCommand(int key);
 
 #endif

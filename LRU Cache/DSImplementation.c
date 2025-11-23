@@ -140,3 +140,23 @@ void mapRemove(int key)
         temp = temp->Next;
     }
 }
+
+// find the node in hash map
+DLLQueNode *mapGet(int key)
+{
+    int index = getHashIndex(key, hashTable->HashSize);
+    // Get the index in hash table by hashing the key.
+    HashMapNode *temp = *(hashTable->HashTable + index);
+
+    while (temp != NULL)
+    {
+        if (temp->Key == key)
+        {
+            // key found so return the node associated with it
+            return temp->QueueNode;
+        }
+        temp = temp->Next;
+    }
+
+    return NULL;
+}
