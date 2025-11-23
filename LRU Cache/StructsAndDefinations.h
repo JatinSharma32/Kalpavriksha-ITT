@@ -34,4 +34,6 @@ typedef struct Cache
 extern Cache *cache;
 extern HashTable *hashTable;
 
+int hashFunction(int key, int hashSize);
+
 #endif

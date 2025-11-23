@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include "StructsAndDefinations.h"
 
+// Cache and hash declared
+Cache *cache = NULL;
+HashTable *hashTable = NULL;
+
 int main()
 {
     // use this frmat for input
