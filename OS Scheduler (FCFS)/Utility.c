@@ -49,6 +49,8 @@ void userInput()
             free(newProcess);
             continue;
         }
+        newProcess->RemainingCPUBurstTime = newProcess->CPUBurst;
+        newProcess->RemainingIOTime = newProcess->IODuration;
 
         // Add this node in Ready queue.
         ListNode *newNode = (ListNode *)malloc(sizeof(ListNode));

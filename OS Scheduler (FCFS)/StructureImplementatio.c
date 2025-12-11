@@ -6,6 +6,35 @@
 #include <ctype.h>
 #include "Implementations.h"
 
+int hash(int pid)
+{
+    return pid % MAP_SIZE;
+}
+
+void addToHashMap(PCB *process)
+{
+    int index = hash(process->PID);
+    ListNode *newNode = (ListNode *)malloc(sizeof(ListNode));
+    newNode->ProcessControlBlock = process;
+    newNode->Next = PCBHashMap->buckets[index];
+    PCBHashMap->buckets[index] = newNode;
+}
+
+PCB *getFromHashMap(int pid)
+{
+    int index = hash(pid);
+    ListNode *curr = PCBHashMap->buckets[index];
+    while (curr != NULL)
+    {
+        if (curr->ProcessControlBlock->PID == pid)
+        {
+            return curr->ProcessControlBlock;
+        }
+        curr = curr->Next;
+    }
+    return NULL;
+}
+
 void enqueue(Queue *queue, ListNode **newNode)
 {
     // We need to pass the double pointer as we are storing original pointer.
@@ -24,7 +53,6 @@ void enqueue(Queue *queue, ListNode **newNode)
 
 PCB *dequeue(Queue *queue)
 {
-    // We need to pass the double pointer as we are storing original pointer.
     PCB *temp;
     if (queue->length == 0)
     {
@@ -40,6 +68,7 @@ PCB *dequeue(Queue *queue)
     {
         queue->Front = queue->Front->Next;
     }
-    return temp;
     queue->length--;
+    free(temp);
+    return temp;
 }

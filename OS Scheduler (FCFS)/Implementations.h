@@ -13,6 +13,8 @@ typedef struct PCB
     int TurnAroundTime;
     int WaitingTime;
     int RemainingCPUBurstTime;
+    int RemainingIOTime;
+    int CompletionTime;
 } PCB;
 
 // Kill Node
@@ -57,5 +59,8 @@ void userInput();
 
 // Queue Functions
 void enqueue(Queue *queue, ListNode **newNode);
+PCB *dequeue(Queue *queue);
+void addToHashMap(PCB *process);
+PCB *getFromHashMap(int pid);
 
 #endif
