@@ -51,6 +51,10 @@ void userInput()
         }
         newProcess->RemainingCPUBurstTime = newProcess->CPUBurst;
         newProcess->RemainingIOTime = newProcess->IODuration;
+        newProcess->CompletionTime = -1;
+        newProcess->State = READY;
+        newProcess->TurnAroundTime = -1;
+        newProcess->WaitingTime = -1;
 
         // Add this node in Ready queue.
         ListNode *newNode = (ListNode *)malloc(sizeof(ListNode));
@@ -59,6 +63,9 @@ void userInput()
 
         // Now add it in the Ready queue
         enqueue(ReadyQueue, &newNode);
+
+        // Add to HashMap so Kill commands can find it
+        addToHashMap(newProcess);
     }
 
     // Now the Kill Commands Part
@@ -70,11 +77,9 @@ void userInput()
             break;
         }
         command[strcspn(command, "\n")] = '\0';
-        printf("NULL Terminated.\n");
 
         KillNode *newKillNode = (KillNode *)malloc(sizeof(KillNode));
         char dump[100];
-        printf("Mem allocated.\n");
         if (sscanf(command, "%s %d %d", dump, &newKillNode->PID, &newKillNode->KillTime) != 3)
         {
             // Invalid input
@@ -86,5 +91,4 @@ void userInput()
         newKillNode->Next = KillListHead;
         KillListHead = newKillNode;
     }
-    printf("Kill List created.\n");
 }

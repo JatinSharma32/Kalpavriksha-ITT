@@ -2,6 +2,15 @@
 #define IMPLEMENTATIONS
 #define MAP_SIZE 100
 
+typedef enum PROCESS_STATES
+{
+    READY,      // 0
+    RUNNING,    // 1
+    WAITING,    // 2
+    TERMINATED, // 3
+    KILLED,     // 4
+} PROCESS_STATES;
+
 // Process Control Block
 typedef struct PCB
 {
@@ -15,6 +24,7 @@ typedef struct PCB
     int RemainingCPUBurstTime;
     int RemainingIOTime;
     int CompletionTime;
+    PROCESS_STATES State;
 } PCB;
 
 // Kill Node
@@ -62,5 +72,7 @@ void enqueue(Queue *queue, ListNode **newNode);
 PCB *dequeue(Queue *queue);
 void addToHashMap(PCB *process);
 PCB *getFromHashMap(int pid);
+void startScheduling();
+void printSimulationResults();
 
 #endif
