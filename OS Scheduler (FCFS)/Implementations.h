@@ -15,6 +15,14 @@ typedef struct PCB
     int RemainingCPUBurstTime;
 } PCB;
 
+// Kill Node
+typedef struct KillNode
+{
+    int PID;
+    int KillTime;
+    struct KillNode *Next;
+} KillNode;
+
 // Wrapper Node of PCB for making list
 typedef struct ListNode
 {
@@ -34,15 +42,20 @@ typedef struct Queue
 {
     ListNode *Front;
     ListNode *Rear;
+    int length;
 } Queue;
 
 extern Queue *ReadyQueue;
 extern Queue *WaitingQueue;
 extern Queue *TerminatedQueue;
-HashMap *PCBHashMap;
+extern HashMap *PCBHashMap;
 extern int SystemClock;
+extern KillNode *KillListHead;
 
 void initilization();
 void userInput();
+
+// Queue Functions
+void enqueue(Queue *queue, ListNode **newNode);
 
 #endif
