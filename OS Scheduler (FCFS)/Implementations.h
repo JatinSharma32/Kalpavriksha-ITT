@@ -1,5 +1,6 @@
 #ifndef IMPLEMENTATIONS
 #define IMPLEMENTATIONS
+#define MAP_SIZE 100
 
 // Process Control Block
 typedef struct PCB
@@ -38,6 +39,10 @@ typedef struct Queue
 extern Queue *ReadyQueue;
 extern Queue *WaitingQueue;
 extern Queue *TerminatedQueue;
+HashMap *PCBHashMap;
 extern int SystemClock;
+
+void initilization();
+void userInput();
 
 #endif

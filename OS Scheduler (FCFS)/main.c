@@ -9,8 +9,11 @@
 Queue *ReadyQueue = NULL;
 Queue *WaitingQueue = NULL;
 Queue *TerminatedQueue = NULL;
+HashMap *PCBHashMap = NULL;
 int SystemClock = 0;
 
 int main(int argc, char **argv)
 {
+    initilization();
+    userInput();
 }
