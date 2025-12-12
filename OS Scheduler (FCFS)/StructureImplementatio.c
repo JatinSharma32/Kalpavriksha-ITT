@@ -114,6 +114,7 @@ void checkKillCommands()
         if (tempNode->KillTime == SystemClock)
         {
             // this PID need to be Killed
+            printf("Time to KILL %d process, [TIME: %d]\n", tempNode->PID, SystemClock);
             PCB *process = getFromHashMap(tempNode->PID);
             if (process->State == READY)
                 deleteFromQueue(ReadyQueue, process->PID);
@@ -139,7 +140,7 @@ void startScheduling()
     printf("\n--- Starting Simulation ---\n");
     PCB *runningProcess = NULL;
     // A while loop that will simulate the system clock
-    while (ReadyQueue->length > 0 || WaitingQueue->length > 0)
+    while (ReadyQueue->length > 0 || WaitingQueue->length > 0 || runningProcess != NULL)
     {
         // check for kill commands
         checkKillCommands();
@@ -150,6 +151,7 @@ void startScheduling()
             runningProcess = NULL;
         }
 
+        printf("Waiting Queue Check\n");
         // Handling the waiting Queue and I/O operations
         if (WaitingQueue->length > 0)
         {
@@ -167,6 +169,7 @@ void startScheduling()
                 process->RemainingIOTime--;
                 if (process->RemainingIOTime <= 0)
                 {
+                    printf("I/O of %d process completed\n", process->PID);
                     // if the I/o Completes then move it to ready queue
                     process->State = READY;
 
@@ -183,11 +186,11 @@ void startScheduling()
                     free(curr);
 
                     // add it to Ready queue again for CPU
+                    printf("Adding %d process again to Ready Queue\n", process->PID);
                     ListNode *newReadyNode = (ListNode *)malloc(sizeof(ListNode));
                     newReadyNode->ProcessControlBlock = process;
                     newReadyNode->Next = NULL;
                     enqueue(ReadyQueue, &newReadyNode);
-
                     curr = nextNode;
                 }
                 else
@@ -199,22 +202,16 @@ void startScheduling()
             }
         }
 
-        // suppose if there's no process in CPU, its IDLE then assign a process
-        if (runningProcess == NULL && ReadyQueue->length > 0)
-        {
-            runningProcess = dequeue(ReadyQueue);
-            runningProcess->State = RUNNING;
-        }
-
-        // IF there's any process in the CUP them execute it for unit time
         if (runningProcess != NULL)
         {
             // find the time process was in CPU
             int timeExecuted = runningProcess->CPUBurst - runningProcess->RemainingCPUBurstTime;
 
             // find if I/O is needed by the process as current timestamp.
-            if (runningProcess->IODuration > 0 && timeExecuted == runningProcess->IOStartTime)
+            if (runningProcess->RemainingIOTime > 0 && timeExecuted == runningProcess->IOStartTime)
             {
+                // move it to waiting queue and empty the CPU
+                printf("%d process needs I/O\n", runningProcess->PID);
                 runningProcess->State = WAITING;
                 ListNode *ioNode = (ListNode *)malloc(sizeof(ListNode));
                 ioNode->ProcessControlBlock = runningProcess;
@@ -222,23 +219,36 @@ void startScheduling()
                 enqueue(WaitingQueue, &ioNode);
                 runningProcess = NULL;
             }
-            else
+        }
+
+        // suppose if there's no process in CPU, its IDLE then assign a process
+        if (runningProcess == NULL && ReadyQueue->length > 0)
+        {
+            runningProcess = dequeue(ReadyQueue);
+            printf("CPU was IDLE, so added %d process\n", runningProcess->PID);
+            runningProcess->State = RUNNING;
+        }
+
+        // IF there's any process in the CUP them execute it for unit time
+        if (runningProcess != NULL)
+        {
+
+            printf("CPU Execution of Current %d process.\n", runningProcess->PID);
+            runningProcess->RemainingCPUBurstTime--;
+
+            // check if the process is completed and needs to be terminated
+            if (runningProcess->RemainingCPUBurstTime <= 0)
             {
-                runningProcess->RemainingCPUBurstTime--;
+                printf("%d process needs to be terminated.\n", runningProcess->PID);
+                runningProcess->State = TERMINATED;
+                runningProcess->CompletionTime = SystemClock + 1;
 
-                // check if the process is completed and needs to be terminated
-                if (runningProcess->RemainingCPUBurstTime <= 0)
-                {
-                    runningProcess->State = TERMINATED;
-                    runningProcess->CompletionTime = SystemClock + 1;
+                ListNode *termNode = (ListNode *)malloc(sizeof(ListNode));
+                termNode->ProcessControlBlock = runningProcess;
+                termNode->Next = NULL;
+                enqueue(TerminatedQueue, &termNode);
 
-                    ListNode *termNode = (ListNode *)malloc(sizeof(ListNode));
-                    termNode->ProcessControlBlock = runningProcess;
-                    termNode->Next = NULL;
-                    enqueue(TerminatedQueue, &termNode);
-
-                    runningProcess = NULL;
-                }
+                runningProcess = NULL;
             }
         }
 
