@@ -114,7 +114,6 @@ void checkKillCommands()
         if (tempNode->KillTime == SystemClock)
         {
             // this PID need to be Killed
-            printf("Time to KILL %d process, [TIME: %d]\n", tempNode->PID, SystemClock);
             PCB *process = getFromHashMap(tempNode->PID);
             if (process->State == READY)
                 deleteFromQueue(ReadyQueue, process->PID);
@@ -137,7 +136,6 @@ void checkKillCommands()
 
 void startScheduling()
 {
-    printf("\n--- Starting Simulation ---\n");
     PCB *runningProcess = NULL;
     // A while loop that will simulate the system clock
     while (ReadyQueue->length > 0 || WaitingQueue->length > 0 || runningProcess != NULL)
@@ -151,7 +149,6 @@ void startScheduling()
             runningProcess = NULL;
         }
 
-        printf("Waiting Queue Check\n");
         // Handling the waiting Queue and I/O operations
         if (WaitingQueue->length > 0)
         {
@@ -169,7 +166,6 @@ void startScheduling()
                 process->RemainingIOTime--;
                 if (process->RemainingIOTime <= 0)
                 {
-                    printf("I/O of %d process completed\n", process->PID);
                     // if the I/o Completes then move it to ready queue
                     process->State = READY;
 
@@ -186,7 +182,6 @@ void startScheduling()
                     free(curr);
 
                     // add it to Ready queue again for CPU
-                    printf("Adding %d process again to Ready Queue\n", process->PID);
                     ListNode *newReadyNode = (ListNode *)malloc(sizeof(ListNode));
                     newReadyNode->ProcessControlBlock = process;
                     newReadyNode->Next = NULL;
@@ -211,7 +206,6 @@ void startScheduling()
             if (runningProcess->RemainingIOTime > 0 && timeExecuted == runningProcess->IOStartTime)
             {
                 // move it to waiting queue and empty the CPU
-                printf("%d process needs I/O\n", runningProcess->PID);
                 runningProcess->State = WAITING;
                 ListNode *ioNode = (ListNode *)malloc(sizeof(ListNode));
                 ioNode->ProcessControlBlock = runningProcess;
@@ -225,7 +219,6 @@ void startScheduling()
         if (runningProcess == NULL && ReadyQueue->length > 0)
         {
             runningProcess = dequeue(ReadyQueue);
-            printf("CPU was IDLE, so added %d process\n", runningProcess->PID);
             runningProcess->State = RUNNING;
         }
 
@@ -233,13 +226,11 @@ void startScheduling()
         if (runningProcess != NULL)
         {
 
-            printf("CPU Execution of Current %d process.\n", runningProcess->PID);
             runningProcess->RemainingCPUBurstTime--;
 
             // check if the process is completed and needs to be terminated
             if (runningProcess->RemainingCPUBurstTime <= 0)
             {
-                printf("%d process needs to be terminated.\n", runningProcess->PID);
                 runningProcess->State = TERMINATED;
                 runningProcess->CompletionTime = SystemClock + 1;
 

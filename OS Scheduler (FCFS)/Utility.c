@@ -92,3 +92,45 @@ void userInput()
         KillListHead = newKillNode;
     }
 }
+
+void printSimulationResults()
+{
+    printf("| %-10s | %-5s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+           "Name", "PID", "State", "Burst", "IO Dur", "TAT", "Wait");
+    printf("--------------------------------------------------------------------------\n");
+
+    if (TerminatedQueue == NULL || TerminatedQueue->Front == NULL)
+        return;
+
+    ListNode *current = TerminatedQueue->Front;
+    double totalTAT = 0;
+    double totalWT = 0;
+    int count = 0;
+
+    while (current != NULL)
+    {
+        PCB *p = current->ProcessControlBlock;
+        p->TurnAroundTime = p->CompletionTime;
+        p->WaitingTime = p->TurnAroundTime - p->CPUBurst;
+
+        if (p->WaitingTime < 0)
+            p->WaitingTime = 0;
+
+        char stateStr[20];
+        if (p->State == TERMINATED)
+            strcpy(stateStr, "DONE");
+        else if (p->State == KILLED)
+            strcpy(stateStr, "KILLED");
+        else
+            strcpy(stateStr, "OTHER");
+
+        printf("| %-10s | %-5d | %-10s | %-8d | %-8d | %-8d | %-8d |\n",
+               p->Name, p->PID, stateStr, p->CPUBurst, p->IODuration, p->TurnAroundTime, p->WaitingTime);
+
+        totalTAT += p->TurnAroundTime;
+        totalWT += p->WaitingTime;
+        count++;
+
+        current = current->Next;
+    }
+}
